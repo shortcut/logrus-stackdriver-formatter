@@ -52,7 +52,6 @@ func TestLogWarning(t *testing.T) {
 	logger.WithError(err).Warning("unable to parse integer")
 
 	res := strBuilder.String()
-	require.Empty(t, res)
 	require.NotEmpty(t, res)
 	require.Contains(t, res, "application up and running")
 	require.Contains(t, res, "strconv.ParseInt: parsing \\\"text\\\": invalid syntax") // Note: Double-escaped, as it is stored as JSON.
