@@ -70,7 +70,7 @@ var formatterTests = []struct {
 					"foo": "bar",
 				},
 				"reportLocation": map[string]interface{}{
-					"filePath":     "github.com/TV4/logrus-stackdriver-formatter/formatter_test.go",
+					"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
 					"lineNumber":   59.0,
 					"functionName": "glob..func2",
 				},
@@ -96,7 +96,7 @@ var formatterTests = []struct {
 					"foo": "bar",
 				},
 				"reportLocation": map[string]interface{}{
-					"filePath":     "github.com/TV4/logrus-stackdriver-formatter/formatter_test.go",
+					"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
 					"lineNumber":   85.0,
 					"functionName": "glob..func3",
 				},
@@ -129,7 +129,7 @@ var formatterTests = []struct {
 					"method": "GET",
 				},
 				"reportLocation": map[string]interface{}{
-					"filePath":     "github.com/TV4/logrus-stackdriver-formatter/formatter_test.go",
+					"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
 					"lineNumber":   115.0,
 					"functionName": "glob..func4",
 				},
