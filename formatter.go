@@ -155,6 +155,10 @@ func (f *Formatter) Format(e *logrus.Entry) ([]byte, error) {
 		Context: &context{
 			Data: replaceErrors(e.Data),
 		},
+		ServiceContext: &serviceContext{
+			Service: f.Service,
+			Version: f.Version,
+		},
 	}
 
 	if !skipTimestamp {
@@ -163,11 +167,6 @@ func (f *Formatter) Format(e *logrus.Entry) ([]byte, error) {
 
 	switch severity {
 	case severityError, severityCritical, severityAlert:
-		ee.ServiceContext = &serviceContext{
-			Service: f.Service,
-			Version: f.Version,
-		}
-
 		// When using WithError(), the error is sent separately, but Error
 		// Reporting expects it to be a part of the message so we append it
 		// instead.
