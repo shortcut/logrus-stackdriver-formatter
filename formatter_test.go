@@ -13,8 +13,6 @@ import (
 )
 
 func TestFormatter(t *testing.T) {
-	skipTimestamp = true
-
 	for _, tc := range formatterTests {
 		t.Run(tc.name, func(t *testing.T) {
 			var out bytes.Buffer
@@ -31,7 +29,7 @@ func TestFormatter(t *testing.T) {
 			var got map[string]interface{}
 			json.Unmarshal(out.Bytes(), &got)
 
-			require.True(t, reflect.DeepEqual(got, tc.out), "unexpected output = %# v; \n want = %# v; \n diff: %#v", pretty.Formatter(got), pretty.Formatter(tc.out), pretty.Diff(got, tc.out))
+			require.True(t, reflect.DeepEqual(got, tc.out), "unexpected output = %# v; \n want = %# v; \n diff: %# v", pretty.Formatter(got), pretty.Formatter(tc.out), pretty.Diff(got, tc.out))
 		})
 	}
 }
@@ -78,9 +76,14 @@ var formatterTests = []struct {
 				},
 				"reportLocation": map[string]interface{}{
 					"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
-					"lineNumber":   66.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
+					"lineNumber":   64.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
 					"functionName": "glob..func2",
 				},
+			},
+			"sourceLocation": map[string]interface{}{
+				"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
+				"lineNumber":   64.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
+				"functionName": "glob..func2",
 			},
 		},
 	},
@@ -105,9 +108,14 @@ var formatterTests = []struct {
 				},
 				"reportLocation": map[string]interface{}{
 					"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
-					"lineNumber":   93.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
+					"lineNumber":   96.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
 					"functionName": "glob..func3",
 				},
+			},
+			"sourceLocation": map[string]interface{}{
+				"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
+				"lineNumber":   96.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
+				"functionName": "glob..func3",
 			},
 		},
 	},
@@ -117,8 +125,8 @@ var formatterTests = []struct {
 			logger.
 				WithFields(logrus.Fields{
 					"foo": "bar",
-					"httpRequest": map[string]interface{}{
-						"method": "GET",
+					"httpRequest": &HTTPRequest{
+						RequestMethod: "GET",
 					},
 				}).
 				Error("my log entry")
@@ -135,13 +143,21 @@ var formatterTests = []struct {
 					"foo": "bar",
 				},
 				"httpRequest": map[string]interface{}{
-					"method": "GET",
+					"requestMethod": "GET",
 				},
 				"reportLocation": map[string]interface{}{
 					"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
-					"lineNumber":   124.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
+					"lineNumber":   132.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
 					"functionName": "glob..func4",
 				},
+			},
+			"sourceLocation": map[string]interface{}{
+				"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
+				"lineNumber":   132.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
+				"functionName": "glob..func4",
+			},
+			"httpRequest": map[string]interface{}{
+				"requestMethod": "GET",
 			},
 		},
 	},

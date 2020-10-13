@@ -3,6 +3,7 @@ package stackdriver
 import (
 	"encoding/json"
 	"fmt"
+	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -33,35 +34,68 @@ var levelsToSeverity = map[logrus.Level]severity{
 	logrus.PanicLevel: severityAlert,
 }
 
-type serviceContext struct {
+// Known keys
+const (
+	KeyTrace       = "trace"
+	KeySpanID      = "spanID"
+	KeyHTTPRequest = "httpRequest"
+	KeyLogID       = "logID"
+)
+
+// ServiceContext provides the data about the service we are sending to Google.
+type ServiceContext struct {
 	Service string `json:"service,omitempty"`
 	Version string `json:"version,omitempty"`
 }
 
-type reportLocation struct {
+// Entry stores a log entry. More information here: https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
+type Entry struct {
+	LogName        string          `json:"logName,omitempty"`
+	Timestamp      string          `json:"timestamp,omitempty"`
+	HTTPRequest    *HTTPRequest    `json:"httpRequest,omitempty"`
+	Trace          string          `json:"trace,omitempty"`
+	SpanID         string          `json:"spanId,omitempty"`
+	ServiceContext *ServiceContext `json:"serviceContext,omitempty"`
+	Message        string          `json:"message,omitempty"`
+	Severity       severity        `json:"severity,omitempty"`
+	Context        *Context        `json:"context,omitempty"`
+	SourceLocation *ReportLocation `json:"sourceLocation,omitempty"`
+}
+
+// ReportLocation is the information about where an error occurred.
+type ReportLocation struct {
 	FilePath     string `json:"filePath,omitempty"`
 	LineNumber   int    `json:"lineNumber,omitempty"`
 	FunctionName string `json:"functionName,omitempty"`
 }
 
-type context struct {
+// Context is sent with every message to stackdriver.
+type Context struct {
 	Data           map[string]interface{} `json:"data,omitempty"`
-	ReportLocation *reportLocation        `json:"reportLocation,omitempty"`
-	HTTPRequest    map[string]interface{} `json:"httpRequest,omitempty"`
+	ReportLocation *ReportLocation        `json:"reportLocation,omitempty"`
+	HTTPRequest    *HTTPRequest           `json:"httpRequest,omitempty"`
 }
 
-type entry struct {
-	Timestamp      string          `json:"timestamp,omitempty"`
-	ServiceContext *serviceContext `json:"serviceContext,omitempty"`
-	Message        string          `json:"message,omitempty"`
-	Severity       severity        `json:"severity,omitempty"`
-	Context        *context        `json:"context,omitempty"`
+// HTTPRequest defines details of a request and response to append to a log.
+type HTTPRequest struct {
+	RequestMethod string `json:"requestMethod,omitempty"`
+	RequestURL    string `json:"requestUrl,omitempty"`
+	RequestSize   string `json:"requestSize,omitempty"`
+	Status        string `json:"status,omitempty"`
+	ResponseSize  string `json:"responseSize,omitempty"`
+	UserAgent     string `json:"userAgent,omitempty"`
+	RemoteIP      string `json:"remoteIp,omitempty"`
+	ServerIP      string `json:"serverIp,omitempty"`
+	Referer       string `json:"referer,omitempty"`
+	Latency       string `json:"latency,omitempty"`
+	Protocol      string `json:"protocol,omitempty"`
 }
 
 // Formatter implements Stackdriver formatting for logrus.
 type Formatter struct {
 	Service   string
 	Version   string
+	ProjectID string
 	StackSkip []string
 }
 
@@ -79,6 +113,13 @@ func WithService(n string) Option {
 func WithVersion(v string) Option {
 	return func(f *Formatter) {
 		f.Version = v
+	}
+}
+
+// WithProjectID makes sure all entries have your Project information.
+func WithProjectID(i string) Option {
+	return func(f *Formatter) {
+		f.ProjectID = i
 	}
 }
 
@@ -112,8 +153,8 @@ func (f *Formatter) errorOrigin() (stack.Call, error) {
 		return false
 	}
 
-	// We start at 2 to skip this call and our caller's call.
-	for i := 2; ; i++ {
+	// We start at 3 to skip this call, our caller's call, and our caller's caller's call.
+	for i := 3; ; i++ {
 		c := stack.Caller(i)
 		// ErrNoFunc indicates we're over traversing the stack.
 		if _, err := c.MarshalText(); err != nil {
@@ -145,20 +186,49 @@ func replaceErrors(source logrus.Fields) logrus.Fields {
 	return data
 }
 
-// Format formats a logrus entry according to the Stackdriver specifications.
-func (f *Formatter) Format(e *logrus.Entry) ([]byte, error) {
+// ToEntry formats a logrus entry to a stackdriver entry.
+func (f *Formatter) ToEntry(e *logrus.Entry) Entry {
 	severity := levelsToSeverity[e.Level]
 
-	ee := entry{
+	ee := Entry{
 		Message:  e.Message,
 		Severity: severity,
-		Context: &context{
+		Context: &Context{
 			Data: replaceErrors(e.Data),
 		},
-		ServiceContext: &serviceContext{
+		ServiceContext: &ServiceContext{
 			Service: f.Service,
 			Version: f.Version,
 		},
+	}
+
+	if val, ok := e.Data[KeyTrace]; ok {
+		if str, ok := val.(string); ok {
+			ee.Trace = str
+			delete(ee.Context.Data, KeyTrace)
+		}
+	}
+
+	if val, ok := e.Data[KeySpanID]; ok {
+		if str, ok := val.(string); ok {
+			ee.SpanID = str
+			delete(ee.Context.Data, KeySpanID)
+		}
+	}
+
+	if val, ok := e.Data[KeyHTTPRequest]; ok {
+		if req, ok := val.(*HTTPRequest); ok {
+			ee.HTTPRequest = req
+			ee.Context.HTTPRequest = req
+			delete(ee.Context.Data, KeyHTTPRequest)
+		}
+	}
+
+	if val, ok := e.Data[KeyLogID]; ok && f.ProjectID != "" {
+		if str, ok := val.(string); ok {
+			ee.LogName = fmt.Sprintf("projects/%s/logs/%s", f.ProjectID, url.QueryEscape(str))
+			delete(ee.Context.Data, KeyLogID)
+		}
 	}
 
 	if !skipTimestamp {
@@ -167,36 +237,36 @@ func (f *Formatter) Format(e *logrus.Entry) ([]byte, error) {
 
 	switch severity {
 	case severityError, severityCritical, severityAlert:
+		// https://cloud.google.com/error-reporting/docs/formatting-error-messages
 		// When using WithError(), the error is sent separately, but Error
 		// Reporting expects it to be a part of the message so we append it
 		// instead.
-		if err, ok := ee.Context.Data["error"]; ok {
+		if err, ok := ee.Context.Data[logrus.ErrorKey]; ok {
 			ee.Message = fmt.Sprintf("%s: %s", e.Message, err)
-			delete(ee.Context.Data, "error")
+			delete(ee.Context.Data, logrus.ErrorKey)
 		} else {
 			ee.Message = e.Message
-		}
-
-		// As a convenience, when using supplying the httpRequest field, it
-		// gets special care.
-		if reqData, ok := ee.Context.Data["httpRequest"]; ok {
-			if req, ok := reqData.(map[string]interface{}); ok {
-				ee.Context.HTTPRequest = req
-				delete(ee.Context.Data, "httpRequest")
-			}
 		}
 
 		// Extract report location from call stack.
 		if c, err := f.errorOrigin(); err == nil {
 			lineNumber, _ := strconv.ParseInt(fmt.Sprintf("%d", c), 10, 64)
-
-			ee.Context.ReportLocation = &reportLocation{
+			location := &ReportLocation{
 				FilePath:     fmt.Sprintf("%+s", c),
 				LineNumber:   int(lineNumber),
 				FunctionName: fmt.Sprintf("%n", c),
 			}
+			ee.Context.ReportLocation = location
+			ee.SourceLocation = location
 		}
 	}
+
+	return ee
+}
+
+// Format formats a logrus entry according to the Stackdriver specifications.
+func (f *Formatter) Format(e *logrus.Entry) ([]byte, error) {
+	ee := f.ToEntry(e)
 
 	b, err := json.Marshal(ee)
 	if err != nil {
