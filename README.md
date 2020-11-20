@@ -1,8 +1,8 @@
 # logrus-stackdriver-formatter
 
-![Test](https://github.com/bendiknesbo/logrus-stackdriver-formatter/workflows/Test/badge.svg?branch=master)
-[![PkgGoDev](https://pkg.go.dev/badge/github.com/bendiknesbo/logrus-stackdriver-formatter)](https://pkg.go.dev/github.com/bendiknesbo/logrus-stackdriver-formatter)
-[![License MIT](https://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)](https://github.com/bendiknesbo/logrus-stackdriver-formatter#license)
+![Test](https://github.com/shortcut/logrus-stackdriver-formatter/workflows/Test/badge.svg?branch=master)
+[![PkgGoDev](https://pkg.go.dev/badge/github.com/shortcut/logrus-stackdriver-formatter)](https://pkg.go.dev/github.com/shortcut/logrus-stackdriver-formatter)
+[![License MIT](https://img.shields.io/badge/license-MIT-lightgrey.svg?style=flat)](https://github.com/shortcut/logrus-stackdriver-formatter#license)
 
 [logrus](https://github.com/sirupsen/logrus) formatter for Stackdriver.  
 Fork from [TV4's formatter](https://github.com/TV4/logrus-stackdriver-formatter).
@@ -12,7 +12,7 @@ In addition to supporting level-based logging to Stackdriver, for Error, Fatal a
 ## Installation
 
 ```shell
-go get -u github.com/bendiknesbo/logrus-stackdriver-formatter
+go get -u github.com/shortcut/logrus-stackdriver-formatter
 ```
 
 ## Usage
@@ -22,7 +22,7 @@ package main
 
 import (
     "github.com/sirupsen/logrus"
-    stackdriver "github.com/bendiknesbo/logrus-stackdriver-formatter"
+    stackdriver "github.com/shortcut/logrus-stackdriver-formatter"
 )
 
 var log = logrus.New()
@@ -50,7 +50,7 @@ Here's a sample entry (prettified) from the example:
   "severity": "ERROR",
   "context": {
     "reportLocation": {
-      "filePath": "github.com/bendiknesbo/logrus-stackdriver-formatter/example_test.go",
+      "filePath": "github.com/shortcut/logrus-stackdriver-formatter/example_test.go",
       "lineNumber": 21,
       "functionName": "ExampleLogError"
     }

@@ -5,7 +5,7 @@ import (
 	"strings"
 	"testing"
 
-	stackdriver "github.com/bendiknesbo/logrus-stackdriver-formatter"
+	stackdriver "github.com/shortcut/logrus-stackdriver-formatter"
 	"github.com/sirupsen/logrus"
 	"github.com/stretchr/testify/require"
 )
@@ -33,7 +33,7 @@ func TestLogError(t *testing.T) {
 
 	// Output:
 	// {"timestamp":"2020-10-12T12:26:00Z","message":"application up and running","severity":"INFO","context":{}}
-	// {"timestamp":"2020-10-12T12:26:00Z","serviceContext":{"service":"test-service","version":"v0.1.0"},"message":"unable to parse integer: strconv.ParseInt: parsing \"text\": invalid syntax","severity":"ERROR","context":{"reportLocation":{"filePath":"github.com/bendiknesbo/logrus-stackdriver-formatter/example_test.go","lineNumber":26,"functionName":"TestLogError"}}}
+	// {"timestamp":"2020-10-12T12:26:00Z","serviceContext":{"service":"test-service","version":"v0.1.0"},"message":"unable to parse integer: strconv.ParseInt: parsing \"text\": invalid syntax","severity":"ERROR","context":{"reportLocation":{"filePath":"github.com/shortcut/logrus-stackdriver-formatter/example_test.go","lineNumber":26,"functionName":"TestLogError"}}}
 }
 
 func TestLogWarning(t *testing.T) {
@@ -59,5 +59,5 @@ func TestLogWarning(t *testing.T) {
 
 	// Output:
 	// {"timestamp":"2020-10-12T12:26:00Z","message":"application up and running","severity":"INFO","context":{}}
-	// {"timestamp":"2020-10-12T12:26:00Z","serviceContext":{"service":"test-service","version":"v0.1.0"},"message":"unable to parse integer: strconv.ParseInt: parsing \"text\": invalid syntax","severity":"WARNING","context":{"reportLocation":{"filePath":"github.com/bendiknesbo/logrus-stackdriver-formatter/example_test.go","lineNumber":26,"functionName":"TestLogError"}}}
+	// {"timestamp":"2020-10-12T12:26:00Z","serviceContext":{"service":"test-service","version":"v0.1.0"},"message":"unable to parse integer: strconv.ParseInt: parsing \"text\": invalid syntax","severity":"WARNING","context":{"reportLocation":{"filePath":"github.com/shortcut/logrus-stackdriver-formatter/example_test.go","lineNumber":26,"functionName":"TestLogError"}}}
 }

@@ -75,13 +75,13 @@ var formatterTests = []struct {
 					"foo": "bar",
 				},
 				"reportLocation": map[string]interface{}{
-					"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
+					"filePath":     "github.com/shortcut/logrus-stackdriver-formatter/formatter_test.go",
 					"lineNumber":   64.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
 					"functionName": "glob..func2",
 				},
 			},
 			"sourceLocation": map[string]interface{}{
-				"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
+				"filePath":     "github.com/shortcut/logrus-stackdriver-formatter/formatter_test.go",
 				"lineNumber":   64.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
 				"functionName": "glob..func2",
 			},
@@ -107,13 +107,13 @@ var formatterTests = []struct {
 					"foo": "bar",
 				},
 				"reportLocation": map[string]interface{}{
-					"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
+					"filePath":     "github.com/shortcut/logrus-stackdriver-formatter/formatter_test.go",
 					"lineNumber":   96.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
 					"functionName": "glob..func3",
 				},
 			},
 			"sourceLocation": map[string]interface{}{
-				"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
+				"filePath":     "github.com/shortcut/logrus-stackdriver-formatter/formatter_test.go",
 				"lineNumber":   96.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
 				"functionName": "glob..func3",
 			},
@@ -146,13 +146,13 @@ var formatterTests = []struct {
 					"requestMethod": "GET",
 				},
 				"reportLocation": map[string]interface{}{
-					"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
+					"filePath":     "github.com/shortcut/logrus-stackdriver-formatter/formatter_test.go",
 					"lineNumber":   132.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
 					"functionName": "glob..func4",
 				},
 			},
 			"sourceLocation": map[string]interface{}{
-				"filePath":     "github.com/bendiknesbo/logrus-stackdriver-formatter/formatter_test.go",
+				"filePath":     "github.com/shortcut/logrus-stackdriver-formatter/formatter_test.go",
 				"lineNumber":   132.0, // NOTE: This is the line-number of where the logging happened, inside the `run`-func.
 				"functionName": "glob..func4",
 			},

@@ -9,7 +9,7 @@ vet:
 
 docs:
 	# pkg.go.dev is only updated after someone has requested the version: https://stackoverflow.com/a/61974058/4353819
-	curl https://sum.golang.org/lookup/github.com/bendiknesbo/logrus-stackdriver-formatter@$(version)
+	curl https://sum.golang.org/lookup/github.com/shortcut/logrus-stackdriver-formatter@$(version)
 
 version:
 	@echo $(version)
