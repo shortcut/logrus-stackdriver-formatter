@@ -12,7 +12,7 @@ In addition to supporting level-based logging to Stackdriver, for Error, Fatal a
 ## Installation
 
 ```shell
-go get -u github.com/TV4/logrus-stackdriver-formatter
+go get -u github.com/bendiknesbo/logrus-stackdriver-formatter
 ```
 
 ## Usage
