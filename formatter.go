@@ -3,7 +3,6 @@ package stackdriver
 import (
 	"encoding/json"
 	"fmt"
-	"net/url"
 	"strconv"
 	"strings"
 	"time"
@@ -50,11 +49,21 @@ type ServiceContext struct {
 
 // Entry stores a log entry. More information here: https://cloud.google.com/logging/docs/reference/v2/rest/v2/LogEntry
 type Entry struct {
-	LogName        string          `json:"logName,omitempty"`
-	Timestamp      string          `json:"timestamp,omitempty"`
-	HTTPRequest    *HTTPRequest    `json:"httpRequest,omitempty"`
-	Trace          string          `json:"trace,omitempty"`
-	SpanID         string          `json:"spanId,omitempty"`
+	LogName     string       `json:"logName,omitempty"`
+	Timestamp   string       `json:"timestamp,omitempty"`
+	HTTPRequest *HTTPRequest `json:"httpRequest,omitempty"`
+	// Trace string
+	// Optional. Resource name of the trace associated with the log entry, if any.
+	// If it contains a relative resource name, the name is assumed to be relative to tracing.googleapis.com.
+	// Example:
+	// projects/my-projectid/traces/06796866738c859f2f19b7cfb3214824
+	Trace string `json:"logging.googleapis.com/trace,omitempty"`
+	// Span string
+	// Optional. The span ID within the trace associated with the log entry.
+	// For Trace spans, this is the same format that the Trace API v2 uses: a 16-character hexadecimal encoding of an 8-byte array.
+	// Example:
+	// 000000000000004a
+	SpanID         string          `json:"logging.googleapis.com/spanId,omitempty"`
 	ServiceContext *ServiceContext `json:"serviceContext,omitempty"`
 	Message        string          `json:"message,omitempty"`
 	Severity       severity        `json:"severity,omitempty"`
@@ -204,6 +213,12 @@ func (f *Formatter) ToEntry(e *logrus.Entry) Entry {
 
 	if val, ok := e.Data[KeyTrace]; ok {
 		if str, ok := val.(string); ok {
+			if f.ProjectID != "" {
+				prefix := fmt.Sprintf("projects/%s/traces/", f.ProjectID)
+				if !strings.HasPrefix(str, prefix) {
+					str = prefix + str
+				}
+			}
 			ee.Trace = str
 			delete(ee.Context.Data, KeyTrace)
 		}
@@ -224,9 +239,9 @@ func (f *Formatter) ToEntry(e *logrus.Entry) Entry {
 		}
 	}
 
-	if val, ok := e.Data[KeyLogID]; ok && f.ProjectID != "" {
+	if val, ok := e.Data[KeyLogID]; ok {
 		if str, ok := val.(string); ok {
-			ee.LogName = fmt.Sprintf("projects/%s/logs/%s", f.ProjectID, url.QueryEscape(str))
+			ee.LogName = str
 			delete(ee.Context.Data, KeyLogID)
 		}
 	}

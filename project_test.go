@@ -28,7 +28,7 @@ func TestProject(t *testing.T) {
 	json.Unmarshal(out.Bytes(), &got)
 
 	want := map[string]interface{}{
-		"logName":  "projects/my-project-id/logs/my-id",
+		"logName":  "my-id",
 		"severity": "INFO",
 		"message":  "my log entry",
 		"context":  map[string]interface{}{},

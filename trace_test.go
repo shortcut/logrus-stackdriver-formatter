@@ -34,8 +34,8 @@ func TestTrace(t *testing.T) {
 			"service": "test",
 			"version": "0.1",
 		},
-		"trace":  "my-trace",
-		"spanId": "my-span",
+		"logging.googleapis.com/trace":  "my-trace",
+		"logging.googleapis.com/spanId": "my-span",
 	}
 
 	require.True(t, reflect.DeepEqual(got, want), "unexpected output = %# v; \n want = %# v; \n diff: %# v", pretty.Formatter(got), pretty.Formatter(want), pretty.Diff(got, want))
