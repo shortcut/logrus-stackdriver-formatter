@@ -52,6 +52,10 @@ type Entry struct {
 	LogName     string       `json:"logName,omitempty"`
 	Timestamp   string       `json:"timestamp,omitempty"`
 	HTTPRequest *HTTPRequest `json:"httpRequest,omitempty"`
+	// TraceID string, Optional. Same as TraceID, but without the project-path.
+	// Example:
+	// 06796866738c859f2f19b7cfb3214824
+	TraceID string `json:"trace_id,omitempty"`
 	// Trace string
 	// Optional. Resource name of the trace associated with the log entry, if any.
 	// If it contains a relative resource name, the name is assumed to be relative to tracing.googleapis.com.
@@ -214,6 +218,7 @@ func (f *Formatter) ToEntry(e *logrus.Entry) Entry {
 	if val, ok := e.Data[KeyTrace]; ok {
 		if str, ok := val.(string); ok {
 			if f.ProjectID != "" {
+				ee.TraceID = str
 				prefix := fmt.Sprintf("projects/%s/traces/", f.ProjectID)
 				if !strings.HasPrefix(str, prefix) {
 					str = prefix + str
